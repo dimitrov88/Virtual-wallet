@@ -11,7 +11,7 @@ def _get_connection() -> Connection:
             password='Gdd12345',
             host='127.0.0.1',
             port=3306,
-            database="virtual wallet"
+            database="wallet"
         )
     except Error as e:  # this error Handling doesn't work as expected !
         print(f"Error connecting to MariaDB Platform: {e}")

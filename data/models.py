@@ -5,14 +5,15 @@ from pydantic import BaseModel, root_validator, PositiveInt, EmailStr, constr, v
 from pydantic import BaseModel, root_validator, PositiveInt, PositiveFloat, EmailStr, constr
 from datetime import datetime, timedelta, date
 from typing import Optional, Union, List
+from flask_login import UserMixin
 from enum import Enum  # StrEnum <- doens't exist in my version !
 
 PREDEFINED_BONUS = 50
 
 
 # TODO: filters for the user history filtration
-class BaseUser(BaseModel):
-    id: Optional[PositiveInt]
+class BaseUser(UserMixin, BaseModel):
+    id: PositiveInt = None
     email: EmailStr
     password: constr(min_length=8)
     name: constr()
@@ -26,7 +27,7 @@ class Transactions(BaseModel):
     id: Optional[PositiveInt]
     sender_id: PositiveInt
     receiver_id: PositiveInt
-    amount: Decimal
+    amount: float
     currency: Union[constr(), PositiveInt]
     date: Optional[datetime]
 
@@ -35,15 +36,50 @@ class Transactions(BaseModel):
         return cls(id=id, sender_id=sender_id, receiver_id=receiver_id, amount=amount, currency=currency, date=date)
 
 
-class Wallet(BaseModel):
+class TransactionResponse(BaseModel):
     id: Optional[PositiveInt]
-    name: constr()
-    currency: constr(max_length=3)
-    balance: Decimal = 0
+    sender: constr()
+    receiver: constr()
+    amount: float
+    currency: Union[constr(), PositiveInt]
+    date: Optional[datetime]
 
     @classmethod
-    def from_query(cls, id, name, currency, balance):
-        return cls(id=id, name=name, currency=currency, balance=balance)
+    def from_query(cls, id, sender, receiver, amount, currency, date):
+        return cls(id=id, sender=sender, receiver=receiver, amount=amount, currency=currency, date=date)
+
+
+class Wallet(BaseModel):
+    id: PositiveInt = None
+    name: constr()
+    balance: float
+    currency_id: PositiveInt = 1
+    user_id: PositiveInt = None
+
+    @classmethod
+    def from_query(cls, id, name, balance, currency_id, user_id):
+        return cls(id=id, name=name, balance=balance, currency_id=currency_id, user_id=user_id)
+
+
+class WalletResponse(BaseModel):
+    id: PositiveInt = None
+    name: constr()
+    balance: float
+    currency: constr()
+    user: constr()
+
+    @classmethod
+    def from_query(cls, id, name, balance, currency, user):
+        return cls(id=id, name=name, balance=balance, currency=currency, user=user)
+
+
+class Currency(BaseModel):
+    id: PositiveInt
+    name: constr()
+
+    @classmethod
+    def from_query(cls, id, name):
+        return cls(id=id, name=name)
 #
 # class TransactionFilter(str, Enum):
 #     period = "period"

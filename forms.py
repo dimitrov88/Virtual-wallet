@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
-from wtforms.validators import DataRequired, URL
+from wtforms.validators import DataRequired, URL, NumberRange
 from flask_ckeditor import CKEditorField
 
 
@@ -35,6 +35,8 @@ class CommentForm(FlaskForm):
 
 
 class AddFromCardForm(FlaskForm):
-    card_number = StringField("Card number", validators=[DataRequired])
-    card_holder = StringField("Card holder", validators=[DataRequired])
-    amount = StringField("Amount to send", validators=[DataRequired])
+    card_number = StringField("Card number", validators=[DataRequired()])
+    card_holder = StringField("Card holder", validators=[DataRequired()])
+    amount = StringField("Amount to send", validators=[DataRequired()])
+    submit = SubmitField("Add money")
+

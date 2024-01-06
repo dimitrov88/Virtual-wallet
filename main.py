@@ -4,11 +4,10 @@ from flask_ckeditor import CKEditor
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 from datetime import datetime
 from forms import RegisterForm, LoginForm, CommentForm, AddFromCardForm
-from services.user_services import get_by_id, get_by_email
 from werkzeug.security import generate_password_hash, check_password_hash
-from data.models import BaseUser, Wallet
-from services.user_services import create_user
-from services.wallet_services import create_first_wallet
+from data.models import BaseUser, Wallet, TransactionResponse, WalletResponse
+from services import user_services, wallet_services, transaction_services
+from flask import request
 
 '''
 Make sure the required packages are installed: 
@@ -35,7 +34,7 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    return get_by_id(user_id)
+    return user_services.get_by_id(user_id)
 
 
 @app.route('/logout')
@@ -47,17 +46,29 @@ def logout():
 @app.route('/')
 def get_all_posts():
     # posts = get_posts()
-    return render_template("index1.html", current_user=current_user)
+    return render_template("login.html")
 
 
-@app.route("/add_money")
-def add_money():
+@app.route('/home')
+def home():
+    user_wallet = wallet_services.get_by_user_name(current_user.name)
+    user_transactions = transaction_services.get_by_username(current_user.name)
+
+    return render_template("index1.html", current_user=current_user, wallet=user_wallet, transactions=user_transactions)
+
+
+@app.route("/add_money/<int:current_wallet_id>", methods=["GET", "POST"])
+def add_money(current_wallet_id: int):
+
     form = AddFromCardForm()
     if form.validate_on_submit():
         amount = form.amount.data
+        wallet = wallet_services.get_by_id(current_wallet_id)
+        to_add = wallet_services.add_from_card(wallet, float(amount))
 
+        return redirect(url_for("home"))
+    return render_template("add_from_card.html", form=form)
 
-    return render_template("add_from_card.html")
 
 
 # @app.route('/')
@@ -175,7 +186,7 @@ def register():
     if form.validate_on_submit():
 
         # Check if user email is already present in the database.
-        user = get_by_email(form.email)
+        user = user_services.get_by_email(form.email)
 
         if user:
             # User already exists
@@ -193,9 +204,9 @@ def register():
             password=hash_and_salted_password
         )
 
-        insert_user = create_user(new_user)
-        first_wallet = create_first_wallet(Wallet(name="EUR Wallet", currency="EUR"), new_user.name)
-
+        insert_user = user_services.create_user(new_user)
+        first_wallet = (wallet_services.create_first_wallet
+                        (Wallet(name=f"{new_user.name} EUR Wallet"), new_user.name))
         # This line will authenticate the user with Flask-Login
         login_user(new_user)
         return redirect(url_for("login"))
@@ -209,7 +220,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         password = form.password.data
-        user = get_by_id(form.email.data)
+        user = user_services.get_by_email(form.email.data)
 
         # Email doesn't exist
         if not user:
@@ -221,7 +232,7 @@ def login():
             return redirect(url_for('login'))
         else:
             login_user(user)
-            return redirect(url_for('get_all_posts'))  # TODO switch url
+            return redirect(url_for('home'))  # TODO switch url
 
     return render_template("login.html", form=form, current_user=current_user)
 

@@ -9,9 +9,10 @@
     <div class="row gx-4 gx-lg-5 justify-content-center">
       <div class="col-md-10 col-lg-8 col-xl-7">
         <div class="site-heading">
-          <h1>0 EUR</h1>
-          <span class="subheading">Here i can put something!</span>
-            <a class="btn btn-secondary text-uppercase" href="{{url_for('add_money')}}">Add money →</a>
+          <h1>{{ wallet.balance}}  {{ wallet.currency }}</h1>
+          <span class="subheading">{{ wallet.name }}</span>
+            <a class="btn btn-secondary text-uppercase"
+               href="{{ url_for('add_money', current_wallet_id=wallet.id)}}">Add money →</a>
         </div>
       </div>
     </div>
@@ -76,8 +77,6 @@
         </tbody>
     </table>
 </div>
-
-
     </div>
   </div>
 </div>

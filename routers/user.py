@@ -47,7 +47,7 @@ def register():
         )
 
         insert_user = create_user(new_user)
-        first_wallet = create_first_wallet(Wallet(name="EUR Wallet", currency="EUR"), new_user.name)
+        first_wallet = create_first_wallet(Wallet(name=f"{new_user.name} EUR Wallet", currency="EUR"), new_user.name)
 
         # This line will authenticate the user with Flask-Login
         login_user(new_user)
