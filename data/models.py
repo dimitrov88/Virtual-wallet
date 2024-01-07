@@ -28,12 +28,12 @@ class Transactions(BaseModel):
     sender_id: PositiveInt
     receiver_id: PositiveInt
     amount: float
-    currency: Union[constr(), PositiveInt]
+    currency_id: Union[constr(), PositiveInt]
     date: Optional[datetime]
 
     @classmethod
-    def from_query(cls, id, sender_id, receiver_id, amount, currency, date):
-        return cls(id=id, sender_id=sender_id, receiver_id=receiver_id, amount=amount, currency=currency, date=date)
+    def from_query(cls, id, sender_id, receiver_id, amount, currency_id, date):
+        return cls(id=id, sender_id=sender_id, receiver_id=receiver_id, amount=amount, currency_id=currency_id, date=date)
 
 
 class TransactionResponse(BaseModel):

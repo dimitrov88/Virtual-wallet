@@ -6,11 +6,9 @@ from flask_ckeditor import CKEditorField
 
 # WTForm for creating a blog post
 class CreateTransactionForm(FlaskForm):
-    title = StringField("Blog Post Title", validators=[DataRequired()])
-    subtitle = StringField("Subtitle", validators=[DataRequired()])
-    img_url = StringField("Blog Image URL", validators=[DataRequired(), URL()])
-    body = CKEditorField("Blog Content", validators=[DataRequired()])
-    submit = SubmitField("Submit Post")
+    receiver = StringField("Receiver email", validators=[DataRequired()])
+    amount = StringField("Amount", validators=[DataRequired()])
+    submit = SubmitField("Submit Transaction")
 
 
 # Create a form to register new users
@@ -40,3 +38,12 @@ class AddFromCardForm(FlaskForm):
     amount = StringField("Amount to send", validators=[DataRequired()])
     submit = SubmitField("Add money")
 
+
+class ContactForm(FlaskForm):
+    email = StringField("Friend's email", validators=[DataRequired()])
+    submit = SubmitField("Add contact!")
+
+
+class CreateFriendTransactionForm(FlaskForm):
+    amount = StringField("Amount", validators=[DataRequired()])
+    submit = SubmitField("Submit Transaction")

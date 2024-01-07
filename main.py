@@ -3,7 +3,7 @@ from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 from datetime import datetime
-from forms import RegisterForm, LoginForm, CommentForm, AddFromCardForm
+from forms import RegisterForm, LoginForm, CommentForm, AddFromCardForm, CreateTransactionForm, ContactForm, CreateFriendTransactionForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from data.models import BaseUser, Wallet, TransactionResponse, WalletResponse
 from services import user_services, wallet_services, transaction_services
@@ -46,7 +46,8 @@ def logout():
 @app.route('/')
 def get_all_posts():
     # posts = get_posts()
-    return render_template("login.html")
+    form = LoginForm()
+    return render_template("login.html", form=form)
 
 
 @app.route('/home')
@@ -59,16 +60,32 @@ def home():
 
 @app.route("/add_money/<int:current_wallet_id>", methods=["GET", "POST"])
 def add_money(current_wallet_id: int):
-
     form = AddFromCardForm()
     if form.validate_on_submit():
         amount = form.amount.data
         wallet = wallet_services.get_by_id(current_wallet_id)
         to_add = wallet_services.add_from_card(wallet, float(amount))
 
+        flash("Money added successfully!")
         return redirect(url_for("home"))
     return render_template("add_from_card.html", form=form)
 
+
+@app.route("/create_transaction/<int:current_wallet_id>", methods=["GET", "POST"])
+def create_transaction(current_wallet_id: int):
+    form = CreateTransactionForm()
+    if form.validate_on_submit():
+        sender_wallet = wallet_services.get_by_id(current_wallet_id)
+
+        receiver_wallet = wallet_services.get_by_email(form.receiver.data)
+        amount = float(form.amount.data)
+        if sender_wallet.balance < amount:
+            flash("You do not have enough money.")
+            return redirect(url_for("create_transaction"))
+        to_send = wallet_services.make_transaction(sender_wallet, receiver_wallet, amount)
+        flash("Transaction complete!")
+        return redirect(url_for("home"))
+    return render_template("make_transaction.html", form=form)
 
 
 # @app.route('/')
@@ -180,6 +197,53 @@ def contact():
     return render_template("contact.html", current_user=current_user)
 
 
+@app.route("/my_contacts")
+def my_contacts():
+    all_contacts = user_services.get_all_contacts_by_id(current_user.id)
+    return render_template("contacts.html", current_user=current_user, contacts=all_contacts)
+
+
+@app.route("/add_contact", methods=["GET", "POST"])
+def add_contact():
+    form = ContactForm()
+
+    if form.validate_on_submit():
+        check_user = user_services.get_by_email(form.email.data)
+        if not check_user:
+            flash("User with that email doesn't exist!")
+            return render_template("contact_form.html", current_user=current_user, form=form)
+        else:
+            to_add = user_services.add_contact(current_user.id, check_user.id)
+            flash("Contact added successfully!")
+            return redirect(url_for("my_contacts"))
+    return render_template("contact_form.html", form=form)
+
+
+@app.route("/remove_contact/<int:contact_id>")
+def remove_contact(contact_id: int):
+    to_remove = user_services.remove_contact_by_id(contact_id, current_user.id)
+    flash("Contact removed!")
+    return redirect(url_for("my_contacts"))
+
+
+@app.route("/send_to_friend/<int:contact_id>",  methods=["GET", "POST"])
+def send_to_friend(contact_id: int):
+    form = CreateFriendTransactionForm()
+    friend = user_services.get_by_id(contact_id)
+    if form.validate_on_submit():
+        sender_wallet = wallet_services.get_by_user_id(current_user.id)
+
+        receiver_wallet = wallet_services.get_by_email(friend.email)
+        amount = float(form.amount.data)
+        if sender_wallet.balance < amount:
+            flash("You do not have enough money.")
+            return redirect(url_for("send_to_friend"))
+        to_send = wallet_services.make_transaction(sender_wallet, receiver_wallet, amount)
+        flash("Transaction complete!")
+        return redirect(url_for("home"))
+    return render_template("send_to_friend.html", form=form, contact=friend)
+
+
 @app.route('/register', methods=["GET", "POST"])
 def register():
     form = RegisterForm()
@@ -206,7 +270,7 @@ def register():
 
         insert_user = user_services.create_user(new_user)
         first_wallet = (wallet_services.create_first_wallet
-                        (Wallet(name=f"{new_user.name} EUR Wallet"), new_user.name))
+                        (Wallet(name=f"{new_user.name} EUR Wallet", balance=0), new_user.name))
         # This line will authenticate the user with Flask-Login
         login_user(new_user)
         return redirect(url_for("login"))
