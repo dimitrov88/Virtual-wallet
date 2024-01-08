@@ -1,4 +1,4 @@
-from flask import Flask, abort, render_template, redirect, url_for, flash, Blueprint, request
+from flask import render_template, redirect, url_for, flash, Blueprint, request
 from forms import CreateTransactionForm, CreateFriendTransactionForm, AddFromCardForm
 from services import wallet_services, user_services, transaction_services
 from flask_login import current_user
@@ -38,10 +38,14 @@ def create_transaction(current_wallet_id: int):
         sender_wallet = wallet_services.get_by_id(current_wallet_id)
 
         receiver_wallet = wallet_services.get_by_email(form.receiver.data)
+        if not receiver_wallet:
+            flash("User with that email doesn't exist!")
+            return redirect(url_for("create_transaction.create_transaction", current_wallet_id=sender_wallet.id))
+
         amount = float(form.amount.data)
         if sender_wallet.balance < amount:
             flash("You do not have enough money.")
-            return redirect(url_for("create_transaction"))
+            return redirect(url_for("create_transaction.create_transaction", current_wallet_id=sender_wallet.id))
         to_send = wallet_services.make_transaction(sender_wallet, receiver_wallet, amount)
         flash("Transaction complete!")
         return redirect(url_for("home.home"))
@@ -56,10 +60,15 @@ def send_to_friend(contact_id: int):
         sender_wallet = wallet_services.get_by_user_id(current_user.id)
 
         receiver_wallet = wallet_services.get_by_email(friend.email)
+        if not receiver_wallet:
+            flash("User with that email doesn't exist!")
+            return redirect(url_for("send_to_friend.send_to_friend", contact_id=contact_id))
+
         amount = float(form.amount.data)
         if sender_wallet.balance < amount:
             flash("You do not have enough money.")
             return redirect(url_for("send_to_friend"))
+
         to_send = wallet_services.make_transaction(sender_wallet, receiver_wallet, amount)
         flash("Transaction complete!")
         return redirect(url_for("home"))

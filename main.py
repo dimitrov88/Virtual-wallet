@@ -1,11 +1,14 @@
-from flask import Flask, abort, render_template, redirect, url_for, flash
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+from flask import Flask, abort, render_template, request, flash
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
-from flask_login import LoginManager, current_user, logout_user
+from flask_login import LoginManager, current_user
 from routers import transaction, user
-from forms import LoginForm, AddFromCardForm
-from services import user_services, wallet_services, transaction_services
-from flask import request
+from forms import LoginForm
+from services import user_services
+import smtplib
 
 '''
 Make sure the required packages are installed: 
@@ -19,6 +22,10 @@ pip3 install -r requirements.txt
 
 This will install the packages from the requirements.txt for this project.
 '''
+
+my_email = "vitrual.wallet.clients@gmail.com"
+password = "kptb bjxu ccbb ifzf "
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
@@ -59,8 +66,35 @@ def about():
     return render_template("about.html", current_user=current_user)
 
 
-@app.route("/contact")
+@app.route("/contact", methods=['GET', 'POST'])
 def contact():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        phone = request.form['phone']
+        message = request.form['message']
+
+        with smtplib.SMTP("smtp.gmail.com") as connection:
+            connection.starttls()
+            connection.login(user=my_email, password=password)
+
+            # Construct the email message
+            subject = 'New Contact Form Submission'
+            body = f'Name: {name}\nEmail: {email}\nPhone: {phone}\nMessage: {message}'
+            sender_email = my_email
+            recipients = [my_email]  # Add recipient email address
+
+            msg = MIMEMultipart()
+            msg['From'] = my_email
+            msg['To'] = ', '.join(recipients)
+            msg['Subject'] = subject
+            msg.attach(MIMEText(body, 'plain'))
+
+            # Send the email
+            connection.sendmail(sender_email, recipients, msg.as_string())
+
+            flash('Your message has been sent!', 'success')
+        return render_template("contact.html", current_user=current_user)
     return render_template("contact.html", current_user=current_user)
 
 

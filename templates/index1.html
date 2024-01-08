@@ -43,7 +43,7 @@
 
       <!-- Pager-->
       <div class="d-flex justify-content-end mb-4">
-        <a class="btn btn-secondary text-uppercase" href="#!">Older Posts →</a>
+        <a class="btn btn-secondary text-uppercase" href="#!">Manage wallet access →</a>
       </div>
     <div class="datatable-top">
     <div class="datatable-dropdown">
@@ -67,7 +67,7 @@
 <div class="datatable-container">
     <table id="datatablesSimple" class="datatable-table">
         <thead>
-        <tr>
+        <tr style="background-color: #e0e0e0;">
 
             <th data-sortable="true" style="width: 18.067978533094813%;"><a href="#" class="datatable-sorter">Sender</a></th>
             <th data-sortable="true" style="width: 24.686940966010734%;"><a href="#" class="datatable-sorter">Receiver</a></th>
@@ -76,16 +76,13 @@
             <th data-sortable="true" style="width: 10.554561717352415%;"><a href="#" class="datatable-sorter">Currency</a></th>
             <th data-sortable="true" style="width: 16.27906976744186%;">
             <a href="{{ url_for('home.home', date=('DESC' if request.args['date']=='ASC' else 'ASC')) }}">Start date</a></th>
-            <th data-sortable="true" style="width: 14.847942754919499%;"><a href="#" class="datatable-sorter">Salary</a></th>
+            <th data-sortable="true" style="width: 14.847942754919499%;"><a href="#" class="datatable-sorter">Category</a></th>
 
         </tr>
         </thead>
         <tbody>
         {% for t in transactions%}
-        <tr data-index="0"><td>{{t.sender}}</td><td>{{t.receiver}}</td><td>{{t.amount}}</td><td>{{t.currency}}</td><td>{{t.date}}</td><td>$320,800</td></tr>
-<!--        <tr data-index="1"><td>Garrett Winters</td><td>Accountant</td><td>Tokyo</td><td>63</td><td>2011/07/25</td><td>$170,750</td></tr>-->
-<!--        <tr data-index="2"><td>Ashton Cox</td><td>Junior Technical Author</td><td>San Francisco</td><td>66</td><td>2009/01/12</td><td>$86,000</td></tr>-->
-<!--        <tr data-index="3"><td>Cedric Kelly</td><td>Senior Javascript Developer</td><td>Edinburgh</td><td>22</td><td>2012/03/29</td><td>$433,060</td></tr>-->
+        <tr data-index="0"><td>{{t.sender}}</td><td>{{t.receiver}}</td><td>{{t.amount}}</td><td>{{t.currency}}</td><td>{{t.date}}</td><td>#</td></tr>
         {%endfor%}
         </tbody>
     </table>

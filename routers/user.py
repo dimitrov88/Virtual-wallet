@@ -1,9 +1,11 @@
-from flask import Flask, abort, render_template, redirect, url_for, flash, Blueprint, request
+from pydantic_core import ValidationError
+from flask import render_template, redirect, url_for, flash, Blueprint, request
 from werkzeug.security import generate_password_hash, check_password_hash
 from data.models import BaseUser, Wallet
 from forms import RegisterForm, ContactForm, LoginForm
 from services import wallet_services, user_services
 from flask_login import current_user, login_user, logout_user
+
 
 register_bp = Blueprint('register', __name__)
 login_bp = Blueprint('login', __name__)
@@ -19,23 +21,25 @@ def register():
     if form.validate_on_submit():
 
         # Check if user email is already present in the database.
-        user = user_services.get_by_email(form.email)
-
+        user = user_services.get_by_email(form.email.data)
         if user:
             # User already exists
-            flash("You've already signed up with that email, log in instead!")
-            return redirect(url_for('login'))
+            flash("You've already signed up with that email, log in insteaddd!")
+            return redirect(url_for('login.login'))
 
         hash_and_salted_password = generate_password_hash(
             form.password.data,
             method='pbkdf2:sha256',
             salt_length=8
         )
-        new_user = BaseUser(
-            email=form.email.data,
-            name=form.name.data,
-            password=hash_and_salted_password
-        )
+        try:
+            new_user = BaseUser(
+                email=form.email.data,
+                name=form.name.data,
+                password=hash_and_salted_password)
+        except ValidationError:
+            flash("Invalid credentials!")
+            return render_template("register.html", form=form, current_user=current_user)
 
         insert_user = user_services.create_user(new_user)
         first_wallet = (wallet_services.create_first_wallet
@@ -57,8 +61,8 @@ def login():
 
         # Email doesn't exist
         if not user:
-            flash("That email does not exist, please try again.")
-            return redirect(url_for('login.login'))
+            flash("That email does not exist, please sign in.")
+            return redirect(url_for('register.register'))
         # Password incorrect
         elif not check_password_hash(user.password, password):
             flash('Password incorrect, please try again.')
@@ -90,6 +94,9 @@ def add_contact():
         check_user = user_services.get_by_email(form.email.data)
         if not check_user:
             flash("User with that email doesn't exist!")
+            return render_template("contact_form.html", current_user=current_user, form=form)
+        elif check_user.email == current_user.email:
+            flash("That's your own email!!")
             return render_template("contact_form.html", current_user=current_user, form=form)
         else:
             to_add = user_services.add_contact(current_user.id, check_user.id)
