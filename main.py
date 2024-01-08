@@ -1,6 +1,6 @@
+import os
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
 from flask import Flask, abort, render_template, request, flash
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
@@ -9,6 +9,7 @@ from routers import transaction, user
 from forms import LoginForm
 from services import user_services
 import smtplib
+from dotenv import load_dotenv
 
 '''
 Make sure the required packages are installed: 
@@ -22,13 +23,13 @@ pip3 install -r requirements.txt
 
 This will install the packages from the requirements.txt for this project.
 '''
-
-my_email = "vitrual.wallet.clients@gmail.com"
-password = "kptb bjxu ccbb ifzf "
+load_dotenv()
+my_email = os.environ.get("EMAIL")
+password = os.environ.get("PASSWORD")
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 

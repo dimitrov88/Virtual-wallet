@@ -1,11 +1,28 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField
+from wtforms import StringField, SubmitField, PasswordField, SelectField
 from wtforms.validators import DataRequired, URL, NumberRange
 from flask_ckeditor import CKEditorField
+from flask_login import current_user
+from services import wallet_services
 
 
-# WTForm for creating a blog post
+# class CreateTransactionForm(FlaskForm):
+#     wallet = SelectField("Select wallet (Optional)", choices=[("", "Select Wallet")])
+#     receiver = StringField("Receiver email", validators=[DataRequired()])
+#     amount = StringField("Amount", validators=[DataRequired()])
+#     submit = SubmitField("Submit Transaction")
+
+def wallet_choices():
+    data = [("", "Select Wallet")]
+    all_user_wallets = wallet_services.get_all_wallets(current_user.id)
+    to_add = [(w.name, f"{w.name}") for w in all_user_wallets]
+    data.extend(to_add)
+
+    return data
+
+
 class CreateTransactionForm(FlaskForm):
+    wallet = SelectField("Select wallet (Optional)", choices=wallet_choices)
     receiver = StringField("Receiver email", validators=[DataRequired()])
     amount = StringField("Amount", validators=[DataRequired()])
     submit = SubmitField("Submit Transaction")
@@ -45,5 +62,6 @@ class ContactForm(FlaskForm):
 
 
 class CreateFriendTransactionForm(FlaskForm):
+    wallet = SelectField("Select wallet (Optional)", choices=wallet_choices)
     amount = StringField("Amount", validators=[DataRequired()])
     submit = SubmitField("Submit Transaction")

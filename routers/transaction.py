@@ -35,7 +35,10 @@ def home_amount():
 def create_transaction(current_wallet_id: int):
     form = CreateTransactionForm()
     if form.validate_on_submit():
-        sender_wallet = wallet_services.get_by_id(current_wallet_id)
+        if form.wallet.data:
+            sender_wallet = wallet_services.get_by_wallet_name(form.wallet.data)
+        else:
+            sender_wallet = wallet_services.get_by_id(current_wallet_id)
 
         receiver_wallet = wallet_services.get_by_email(form.receiver.data)
         if not receiver_wallet:
@@ -49,6 +52,7 @@ def create_transaction(current_wallet_id: int):
         to_send = wallet_services.make_transaction(sender_wallet, receiver_wallet, amount)
         flash("Transaction complete!")
         return redirect(url_for("home.home"))
+
     return render_template("make_transaction.html", form=form)
 
 
@@ -57,7 +61,10 @@ def send_to_friend(contact_id: int):
     form = CreateFriendTransactionForm()
     friend = user_services.get_by_id(contact_id)
     if form.validate_on_submit():
-        sender_wallet = wallet_services.get_by_user_id(current_user.id)
+        if form.wallet.data:
+            sender_wallet = wallet_services.get_by_wallet_name(form.wallet.data)
+        else:
+            sender_wallet = wallet_services.get_by_user_id(current_user.id)
 
         receiver_wallet = wallet_services.get_by_email(friend.email)
         if not receiver_wallet:
@@ -71,7 +78,7 @@ def send_to_friend(contact_id: int):
 
         to_send = wallet_services.make_transaction(sender_wallet, receiver_wallet, amount)
         flash("Transaction complete!")
-        return redirect(url_for("home"))
+        return redirect(url_for("home.home"))
     return render_template("send_to_friend.html", form=form, contact=friend)
 
 
