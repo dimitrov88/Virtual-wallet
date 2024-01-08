@@ -8,13 +8,29 @@ def get_by_id(id):
     return next((Transactions.from_query(*row) for row in data), None)
 
 
-def get_by_username(name):
-    data = read_query(f"SELECT t.id, s.name, r.name, t.amount, c.name, t.date FROM transaction t "
-                      "JOIN user s on s.id = t.sender_id "
-                      "JOIN user r on r.id = t.receiver_id "
-                      "JOIN currency c on c.id = t.currency_id "
-                      f"WHERE s.name = '{name}' or r.name='{name}'")
+def get_by_username(name, date_sort, search_term=None):
+    new = '''SELECT t.id, s.name, r.name, t.amount, c.name, t.date FROM transaction t
+     JOIN user s on s.id = t.sender_id 
+     JOIN user r on r.id = t.receiver_id 
+     JOIN currency c on c.id = t.currency_id '''
+
+    if not search_term:
+        new += f"WHERE s.name = '{name}' OR r.name = '{name}'"
+    else:
+        new += f"WHERE s.name = '{name}' AND r.name = '{search_term}' or s.name = '{search_term}' and r.name = '{name}'"
+
+    new += f" ORDER BY t.date {date_sort}"
+    data = read_query(new)
 
     return (TransactionResponse.from_query(*row) for row in data)
 
 
+def get_by_username_amount(name, amount_sort):
+    data = read_query(f"SELECT t.id, s.name, r.name, t.amount, c.name, t.date FROM transaction t "
+                      "JOIN user s on s.id = t.sender_id "
+                      "JOIN user r on r.id = t.receiver_id "
+                      "JOIN currency c on c.id = t.currency_id "
+                      f"WHERE s.name = '{name}' or r.name='{name}' "
+                      f"ORDER BY t.amount {amount_sort}")
+
+    return (TransactionResponse.from_query(*row) for row in data)

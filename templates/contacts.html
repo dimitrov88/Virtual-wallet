@@ -3,7 +3,7 @@
 <!-- Page Header-->
 <header
   class="masthead"
-  style="background-image: url('../static/assets/img/home-bg.jpg')"
+  style="background-image: url('../static/assets/img/friends.jpg')"
 >
   <div class="container position-relative px-4 px-lg-5">
     <div class="row gx-4 gx-lg-5 justify-content-center">
@@ -30,13 +30,13 @@
       <!-- Post preview-->
       {% for contact in contacts %}
       <div class="post-preview">
-        <a href="{{ url_for('send_to_friend', contact_id=contact.id) }}">
+        <a href="{{ url_for('send_to_friend.send_to_friend', contact_id=contact.id) }}">
           <h2 class="post-title">{{ contact.name }}</h2>
           <h3 class="post-subtitle">{{ contact.email }}</h3>
         </a>
         <p class="post-meta">
           <!-- Only show delete button if user id is 1 (admin user) -->
-          <a href="{{url_for('remove_contact', contact_id=contact.id) }}">✘</a>
+          <a href="{{url_for('remove_contact.remove_contact', contact_id=contact.id) }}">✘</a>
         </p>
       </div>
       <!-- Divider-->
@@ -48,7 +48,7 @@
       <div class="d-flex justify-content-end mb-4">
         <a
           class="btn btn-primary float-right"
-          href="{{url_for('add_contact')}}"
+          href="{{url_for('add_contact.add_contact')}}"
           >Add a contact</a
         >
       </div>

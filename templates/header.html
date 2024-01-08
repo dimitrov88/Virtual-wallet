@@ -63,26 +63,29 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ms-auto py-4 py-lg-0">
+            {% if current_user.is_authenticated: %}
+
             <li class="nav-item">
               <a
                 class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('home') }}"
+                href="{{ url_for('home.home') }}"
                 >Home</a
               >
             </li>
+            {% endif %}
             <!-- Only show Login/Register if user is logged out. Otherwise show "Log Out" -->
             {% if not current_user.is_authenticated: %}
             <li class="nav-item">
               <a
                 class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('login') }}"
+                href="{{ url_for('login.login') }}"
                 >Login</a
               >
             </li>
             <li class="nav-item">
               <a
                 class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('register') }}"
+                href="{{ url_for('register.register') }}"
                 >Register</a
               >
             </li>
@@ -90,18 +93,19 @@
             <li class="nav-item">
               <a
                 class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('logout') }}"
+                href="{{ url_for('logout.logout') }}"
                 >Log Out</a
               >
             </li>
-            {% endif %}
             <li class="nav-item">
               <a
                 class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('my_contacts') }}"
+                href="{{ url_for('my_contacts.my_contacts') }}"
                 >My Contacts</a
               >
             </li>
+            {% endif %}
+
             <li class="nav-item">
               <a
                 class="nav-link px-lg-3 py-3 py-lg-4"
