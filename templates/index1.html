@@ -12,7 +12,7 @@
           <h1>{{ wallet.balance}}  {{ wallet.currency }}</h1>
           <span class="subheading">{{ wallet.name }}</span>
             <a class="btn btn-secondary text-uppercase"
-               href="{{ url_for('add_money.add_money', current_wallet_id=wallet.id)}}">Add money →</a>
+               href="{{ url_for('add_money.add_money') }}">Add money →</a>
         </div>
       </div>
     </div>
@@ -41,9 +41,11 @@
         <a class="btn btn-secondary text-uppercase" href="{{ url_for('my_contacts.my_contacts')}}">Send money to a friend →</a>
     </div>
 
-      <!-- Pager-->
       <div class="d-flex justify-content-end mb-4">
-        <a class="btn btn-secondary text-uppercase" href="#!">Manage wallet access →</a>
+          <a class="btn btn-primary float-right"
+          href="{{ url_for('create_wallet.create_wallet') }}"
+          >Create Wallet →</a>
+        <a class="btn btn-secondary text-uppercase" href="{{ url_for('wallet_access.wallet_access')}}">Manage wallet access →</a>
       </div>
     <div class="datatable-top">
 

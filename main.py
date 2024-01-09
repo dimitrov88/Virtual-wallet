@@ -5,7 +5,7 @@ from flask import Flask, abort, render_template, request, flash
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
 from flask_login import LoginManager, current_user
-from routers import transaction, user
+from routers import transaction, user, wallet
 from forms import LoginForm
 from services import user_services
 import smtplib
@@ -48,6 +48,11 @@ app.register_blueprint(transaction.add_money_bp)
 app.register_blueprint(user.logout_bp)
 app.register_blueprint(transaction.home_bp)
 app.register_blueprint(transaction.home_amount_bp)
+app.register_blueprint(wallet.wallet_bp)
+app.register_blueprint(wallet.wallet_access_bp)
+app.register_blueprint(wallet.add_wallet_access_bp)
+app.register_blueprint(wallet.remove_wallet_access_bp)
+
 
 
 @login_manager.user_loader

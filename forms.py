@@ -21,6 +21,15 @@ def wallet_choices():
     return data
 
 
+def only_user_wallet_choices():
+    data = [("", "Select Wallet")]
+    all_user_wallets = wallet_services.get_all_by_user_id(current_user.id)
+    to_add = [(w.name, f"{w.name}") for w in all_user_wallets]
+    data.extend(to_add)
+
+    return data
+
+
 class CreateTransactionForm(FlaskForm):
     wallet = SelectField("Select wallet (Optional)", choices=wallet_choices)
     receiver = StringField("Receiver email", validators=[DataRequired()])
@@ -50,6 +59,7 @@ class CommentForm(FlaskForm):
 
 
 class AddFromCardForm(FlaskForm):
+    wallet_name = SelectField("Choose a wallet", choices=only_user_wallet_choices, validators=[DataRequired()])
     card_number = StringField("Card number", validators=[DataRequired()])
     card_holder = StringField("Card holder", validators=[DataRequired()])
     amount = StringField("Amount to send", validators=[DataRequired()])
@@ -64,4 +74,16 @@ class ContactForm(FlaskForm):
 class CreateFriendTransactionForm(FlaskForm):
     wallet = SelectField("Select wallet (Optional)", choices=wallet_choices)
     amount = StringField("Amount", validators=[DataRequired()])
+    submit = SubmitField("Submit Transaction")
+
+
+class CreateWalletForm(FlaskForm):
+    currency = SelectField("Select wallet currency", choices=[("EUR", "EUR"), ("BGN", "BGN")])
+    name = StringField("Wallet name", validators=[DataRequired()])
+    submit = SubmitField("Submit Transaction")
+
+
+class WalletAccessForm(FlaskForm):
+    wallet = SelectField("Select wallet (Optional)", choices=only_user_wallet_choices, validators=[DataRequired()])
+    user_email = StringField("User email", validators=[DataRequired()])
     submit = SubmitField("Submit Transaction")

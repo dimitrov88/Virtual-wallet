@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, Blueprint, request
 from forms import CreateTransactionForm, CreateFriendTransactionForm, AddFromCardForm
-from services import wallet_services, user_services, transaction_services
+from services import wallet_services, user_services, transaction_services, currency_services
 from flask_login import current_user
 
 transaction_bp = Blueprint('create_transaction', __name__)
@@ -49,7 +49,18 @@ def create_transaction(current_wallet_id: int):
         if sender_wallet.balance < amount:
             flash("You do not have enough money.")
             return redirect(url_for("create_transaction.create_transaction", current_wallet_id=sender_wallet.id))
-        to_send = wallet_services.make_transaction(sender_wallet, receiver_wallet, amount)
+
+        if sender_wallet.currency_id == receiver_wallet.currency_id:
+            to_send = wallet_services.make_transaction(sender_wallet, receiver_wallet, amount, amount)
+
+        else:
+            if sender_wallet.currency_id == 1:
+                check_currency = currency_services.convert_currency("EUR", "BGN")
+            else:
+                check_currency = currency_services.convert_currency("BGN", "EUR")
+
+            to_send = wallet_services.make_transaction(sender_wallet, receiver_wallet, amount, amount * check_currency)
+
         flash("Transaction complete!")
         return redirect(url_for("home.home"))
 
@@ -76,18 +87,27 @@ def send_to_friend(contact_id: int):
             flash("You do not have enough money.")
             return redirect(url_for("send_to_friend"))
 
-        to_send = wallet_services.make_transaction(sender_wallet, receiver_wallet, amount)
+        if sender_wallet.currency_id == receiver_wallet.currency_id:
+            to_send = wallet_services.make_transaction(sender_wallet, receiver_wallet, amount, amount)
+
+        else:
+            if sender_wallet.currency_id == 1:
+                check_currency = currency_services.convert_currency("EUR", "BGN")
+            else:
+                check_currency = currency_services.convert_currency("BGN", "EUR")
+            to_send = wallet_services.make_transaction(sender_wallet, receiver_wallet, amount, amount * check_currency)
+
         flash("Transaction complete!")
         return redirect(url_for("home.home"))
     return render_template("send_to_friend.html", form=form, contact=friend)
 
 
-@add_money_bp.route("/add_money/<int:current_wallet_id>", methods=["GET", "POST"])
-def add_money(current_wallet_id: int):
+@add_money_bp.route("/add_money", methods=["GET", "POST"])
+def add_money():
     form = AddFromCardForm()
     if form.validate_on_submit():
         amount = form.amount.data
-        wallet = wallet_services.get_by_id(current_wallet_id)
+        wallet = wallet_services.get_by_wallet_name(form.wallet_name.data)
         to_add = wallet_services.add_from_card(wallet, float(amount))
 
         flash("Money added successfully!")
