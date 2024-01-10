@@ -52,6 +52,7 @@ app.register_blueprint(wallet.wallet_bp)
 app.register_blueprint(wallet.wallet_access_bp)
 app.register_blueprint(wallet.add_wallet_access_bp)
 app.register_blueprint(wallet.remove_wallet_access_bp)
+app.register_blueprint(wallet.view_wallets_bp)
 
 
 

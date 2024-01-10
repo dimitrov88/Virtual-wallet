@@ -9,6 +9,14 @@ wallet_bp = Blueprint('create_wallet', __name__)
 wallet_access_bp = Blueprint('wallet_access', __name__)
 remove_wallet_access_bp = Blueprint('remove_wallet_access', __name__)
 add_wallet_access_bp = Blueprint('add_wallet_access', __name__)
+view_wallets_bp = Blueprint('view_wallets', __name__)
+
+
+@view_wallets_bp.route("/view_wallets")
+def view_wallets():
+    wallets = wallet_services.get_all_wallets_response(current_user.id)
+
+    return render_template("wallets.html", current_user=current_user, wallets=wallets)
 
 
 @wallet_bp.route("/create_wallet", methods=["GET", "POST"])

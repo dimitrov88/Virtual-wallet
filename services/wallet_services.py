@@ -130,6 +130,15 @@ def get_all_wallets(user_id):
     return (Wallet.from_query(*row) for row in data)
 
 
+def get_all_wallets_response(user_id):
+    data = read_query("SELECT w.id, w.name, w.balance, c.name, u.name FROM wallet w "
+                      "JOIN wallet_access wa on w.id = wa.wallet_id "
+                      "JOIN user u on u.id = w.user_id "
+                      "JOIN currency c on c.id = w.currency_id "
+                      "WHERE wa.user_id = ? AND wa.spend_access = ? AND wa.add_access = ?", (user_id, True, True))
+    return (WalletResponse.from_query(*row) for row in data)
+
+
 def add_from_card(wallet, amount):
     to_add = wallet.balance + amount
 
