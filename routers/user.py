@@ -5,6 +5,7 @@ from data.models import BaseUser, Wallet
 from forms import RegisterForm, ContactForm, LoginForm
 from services import wallet_services, user_services
 from flask_login import current_user, login_user, logout_user
+import os
 
 
 register_bp = Blueprint('register', __name__)
@@ -29,7 +30,7 @@ def register():
 
         hash_and_salted_password = generate_password_hash(
             form.password.data,
-            method='pbkdf2:sha256',
+            method=os.environ.get("PASS_METHOD"),
             salt_length=8
         )
         try:

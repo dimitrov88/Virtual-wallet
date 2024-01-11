@@ -27,7 +27,6 @@ load_dotenv()
 my_email = os.environ.get("EMAIL")
 password = os.environ.get("PASSWORD")
 
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 ckeditor = CKEditor(app)
@@ -53,7 +52,6 @@ app.register_blueprint(wallet.wallet_access_bp)
 app.register_blueprint(wallet.add_wallet_access_bp)
 app.register_blueprint(wallet.remove_wallet_access_bp)
 app.register_blueprint(wallet.view_wallets_bp)
-
 
 
 @login_manager.user_loader
@@ -106,4 +104,4 @@ def contact():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5002)
+    app.run(debug=True, port=5001)

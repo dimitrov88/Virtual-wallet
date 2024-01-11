@@ -2,16 +2,18 @@ import sys
 from mariadb import connect
 from mariadb.connections import Connection
 from mariadb import Error
+import os
+
 
 
 def _get_connection() -> Connection:
     try:
         return connect(
-            user="root",
-            password='Gdd12345',
-            host='127.0.0.1',
-            port=3306,
-            database="wallet"
+            user="admin",
+            password=os.environ.get("DB_PASS"),
+            host='database-1.ct7kd6mbyts8.eu-west-3.rds.amazonaws.com',
+            port=5001,
+            database="mydb"
         )
     except Error as e:  # this error Handling doesn't work as expected !
         print(f"Error connecting to MariaDB Platform: {e}")

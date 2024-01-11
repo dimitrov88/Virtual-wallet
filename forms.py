@@ -80,10 +80,10 @@ class CreateFriendTransactionForm(FlaskForm):
 class CreateWalletForm(FlaskForm):
     currency = SelectField("Select wallet currency", choices=[("EUR", "EUR"), ("BGN", "BGN")])
     name = StringField("Wallet name", validators=[DataRequired()])
-    submit = SubmitField("Submit Transaction")
+    submit = SubmitField("Create Wallet")
 
 
 class WalletAccessForm(FlaskForm):
     wallet = SelectField("Select wallet (Optional)", choices=only_user_wallet_choices, validators=[DataRequired()])
     user_email = StringField("User email", validators=[DataRequired()])
-    submit = SubmitField("Submit Transaction")
+    submit = SubmitField("Submit")
